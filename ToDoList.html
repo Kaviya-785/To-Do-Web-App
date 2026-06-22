@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: white;
+      display: flex;
+      justify-content: center;
+      padding: 50px;
+    }
+    .box {
+      background: #d3bfe0;
+      padding: 20px;
+      border-radius: 10px;
+      width: 350px; height: 400px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #taskInput {
+      width: 100%; height: 40px;
+      font-size: 16px;
+      padding: 4px;
+      margin-bottom: 10px;
+    }
+    button.add-btn {
+      width: 60px;
+      padding: 10px;
+      background-color: green;
+      color: white;
+      font-size: 15px;
+      border: none; border-radius: 5px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+    ul {
+      padding: 0;
+    }
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    li.completed span {
+      text-decoration: line-through;
+      color: gray;
+    }
+    li input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    .task-text {
+      flex-grow: 1;
+    }
+    .delete {
+      background-color: red;
+      color: white;
+      padding: 5px 10px;
+      font-size: 14px;
+      border:none; border-radius: 1px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 align="center">To-Do List</h2>
+    <input type="text" id="taskInput" placeholder="Add task">
+    <button class="add-btn" onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+  </div>
+  <script>
+    const taskList = document.getElementById("taskList");
+
+    window.onload = () => {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.forEach(t => addToDOM(t.text, t.done));
+    };
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      if (input.value.trim() === "") return;
+      addToDOM(input.value.trim(), false);
+      input.value = "";
+      save();
+    }
+    function addToDOM(text, done) {
+      const li = document.createElement("li");
+      if (done) li.classList.add("completed");
+
+      li.innerHTML = `
+        <input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)">
+        <span class="task-text">${text}</span>
+        <button class="delete" onclick="removeTask(this)">X</button>
+      `;
+      taskList.appendChild(li);
+    }
+    function toggleDone(box) {
+      box.parentElement.classList.toggle("completed");
+      save();
+    }
+    function removeTask(btn) {
+      btn.parentElement.remove();
+      save();
+    }
+    function save() {
+      const tasks = [];
+      taskList.querySelectorAll("li").forEach(li => {
+        tasks.push({
+          text: li.querySelector("span").textContent,
+          done: li.querySelector("input").checked
+        });
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  </script>
+</body>
+</html>
